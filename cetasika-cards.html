@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>เจตสิก ๕๒ — ไพ่จิตธรรม</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Noto+Serif+Thai:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #1a1008;
+    --gold: #c9922a;
+    --gold-light: #e8b84b;
+    --gold-dim: #7a5415;
+    --parchment: #f0e6cc;
+    --spade-color: #2a4a6b;
+    --spade-light: #4a8fc4;
+    --heart-color: #7a1a1a;
+    --heart-light: #c43c3c;
+    --diamond-color: #1a5c2a;
+    --diamond-light: #3ba355;
+    --club-color: #4a2060;
+    --club-light: #8a4aaa;
+    --card-bg: #fdf5e0;
+    --card-border: #c9922a;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: var(--bg);
+    font-family: 'Noto Serif Thai', 'Libre Baskerville', serif;
+    color: var(--parchment);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  body::before {
+    content:'';
+    position:fixed; inset:0;
+    background: radial-gradient(ellipse at 50% 0%, #3d1f00 0%, #1a1008 60%);
+    z-index:-2;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    text-align:center;
+    padding: 2.5rem 1rem 1.5rem;
+    position:relative;
+  }
+  .header h1 {
+    font-size: clamp(1.6rem, 5vw, 2.8rem);
+    color: var(--gold-light);
+    letter-spacing:.08em;
+    text-shadow: 0 0 40px rgba(200,150,40,.4);
+    line-height:1.3;
+  }
+  .header p {
+    margin-top:.5rem;
+    font-size:.85rem;
+    color: var(--gold-dim);
+    font-style:italic;
+    letter-spacing:.05em;
+  }
+  .ornament { color: var(--gold); font-size:1.2rem; }
+
+  /* ── LEGEND ── */
+  .legend {
+    display:flex; flex-wrap:wrap; gap:.6rem;
+    justify-content:center;
+    padding: .5rem 1rem 1.5rem;
+  }
+  .legend-item {
+    display:flex; align-items:center; gap:.4rem;
+    background: rgba(255,255,255,.05);
+    border: 1px solid rgba(201,146,42,.25);
+    border-radius: 6px;
+    padding: .35rem .7rem;
+    font-size: .75rem;
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .legend-item:hover, .legend-item.active {
+    border-color: var(--gold);
+    background: rgba(201,146,42,.15);
+  }
+  .legend-item .suit-icon { font-size:1rem; }
+
+  /* ── GRID ── */
+  .deck-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+    gap: .6rem;
+    padding: 0 .8rem 3rem;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  /* ── CARD ── */
+  .card-wrap {
+    perspective: 600px;
+    cursor: pointer;
+    aspect-ratio: 0.71;
+  }
+  .card-inner {
+    position:relative; width:100%; height:100%;
+    transform-style: preserve-3d;
+    transition: transform .5s cubic-bezier(.4,0,.2,1);
+    border-radius: 8px;
+  }
+  .card-wrap.flipped .card-inner { transform: rotateY(180deg); }
+
+  .card-face, .card-back {
+    position:absolute; inset:0;
+    backface-visibility: hidden;
+    border-radius: 8px;
+    border: 1.5px solid var(--card-border);
+    overflow:hidden;
+  }
+  .card-back {
+    background: linear-gradient(135deg, #1a0a00 0%, #2d1500 50%, #1a0a00 100%);
+    display:flex; align-items:center; justify-content:center;
+    font-size:1.8rem;
+  }
+  .card-back-pattern {
+    position:absolute; inset:4px;
+    border: 1px solid rgba(201,146,42,.3);
+    border-radius:6px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:1.4rem;
+    background:
+      repeating-linear-gradient(45deg,transparent,transparent 6px,rgba(201,146,42,.04) 6px,rgba(201,146,42,.04) 7px),
+      repeating-linear-gradient(-45deg,transparent,transparent 6px,rgba(201,146,42,.04) 6px,rgba(201,146,42,.04) 7px);
+  }
+
+  .card-face {
+    background: var(--card-bg);
+    display:flex; flex-direction:column;
+    padding: 4px;
+    transform: rotateY(180deg);
+  }
+  .card-face.spade  { --suit-color: var(--spade-color); --suit-accent: var(--spade-light); }
+  .card-face.heart  { --suit-color: var(--heart-color); --suit-accent: var(--heart-light); }
+  .card-face.diamond { --suit-color: var(--diamond-color); --suit-accent: var(--diamond-light); }
+  .card-face.club   { --suit-color: var(--club-color); --suit-accent: var(--club-light); }
+
+  .card-header {
+    display:flex; justify-content:space-between; align-items:flex-start;
+    line-height:1;
+  }
+  .card-rank {
+    font-family: 'Libre Baskerville', serif;
+    font-size: .75rem;
+    font-weight:700;
+    color: var(--suit-color);
+    line-height:1;
+  }
+  .card-suit-small {
+    font-size: .65rem;
+    color: var(--suit-color);
+    margin-top:1px;
+  }
+
+  .card-center {
+    flex:1;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:2px;
+    padding: 2px 1px;
+  }
+  .suit-large { font-size: 1.3rem; line-height:1; }
+  .pali-name {
+    font-family: 'Libre Baskerville', serif;
+    font-size: .47rem;
+    color: rgba(0,0,0,.4);
+    text-align:center;
+    font-style:italic;
+    letter-spacing:.02em;
+    line-height:1.2;
+  }
+  .thai-name {
+    font-size: .58rem;
+    color: var(--suit-color);
+    text-align:center;
+    font-weight:600;
+    line-height:1.3;
+  }
+  .meaning {
+    font-size: .42rem;
+    color: rgba(0,0,0,.45);
+    text-align:center;
+    line-height:1.3;
+  }
+
+  .card-footer {
+    display:flex; justify-content:space-between; align-items:flex-end;
+    transform: rotate(180deg);
+    line-height:1;
+  }
+
+  /* face card glow */
+  .card-wrap[data-rank="A"] .card-face,
+  .card-wrap[data-rank="K"] .card-face,
+  .card-wrap[data-rank="Q"] .card-face,
+  .card-wrap[data-rank="J"] .card-face {
+    box-shadow: inset 0 0 0 2px rgba(201,146,42,.35);
+  }
+  .card-face .crown { font-size:.5rem; text-align:center; color:var(--gold); opacity:.6; margin-bottom:1px; }
+
+  /* ── FILTER BUTTONS ── */
+  .filter-bar {
+    display:flex; flex-wrap:wrap; gap:.4rem;
+    justify-content:center;
+    padding: 0 1rem .8rem;
+  }
+  .filter-btn {
+    padding: .3rem .7rem;
+    border-radius:20px;
+    border: 1px solid rgba(201,146,42,.3);
+    background:transparent;
+    color: var(--gold-dim);
+    font-family: inherit;
+    font-size:.72rem;
+    cursor:pointer;
+    transition:all .2s;
+  }
+  .filter-btn:hover { border-color:var(--gold); color:var(--gold); }
+  .filter-btn.active { background:var(--gold); color:#1a0800; border-color:var(--gold); font-weight:700; }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    display:none; position:fixed; inset:0;
+    background:rgba(0,0,0,.8); backdrop-filter:blur(4px);
+    z-index:100; align-items:center; justify-content:center; padding:1rem;
+  }
+  .modal-overlay.show { display:flex; }
+  .modal {
+    background: linear-gradient(160deg, #2a1500 0%, #1a0d00 100%);
+    border: 1px solid var(--gold);
+    border-radius: 16px;
+    padding: 1.5rem;
+    max-width: 380px; width:100%;
+    box-shadow: 0 0 60px rgba(201,146,42,.3), 0 0 120px rgba(201,146,42,.1);
+    position:relative;
+    animation: modalIn .3s ease;
+  }
+  @keyframes modalIn {
+    from { transform:scale(.9) translateY(20px); opacity:0; }
+    to   { transform:scale(1) translateY(0);     opacity:1; }
+  }
+  .modal-close {
+    position:absolute; top:.8rem; right:.9rem;
+    background:none; border:none; color:var(--gold-dim);
+    font-size:1.3rem; cursor:pointer;
+    transition:color .2s;
+  }
+  .modal-close:hover { color:var(--gold); }
+  .modal-card-preview {
+    display:flex; gap:1rem; align-items:center; margin-bottom:1rem;
+  }
+  .modal-suit-badge {
+    font-size:2.2rem; width:52px; height:72px;
+    display:flex; align-items:center; justify-content:center;
+    border-radius:8px;
+    border: 1.5px solid var(--gold-dim);
+    background: var(--card-bg);
+    flex-shrink:0;
+  }
+  .modal-rank { font-size:1.8rem; font-weight:700; font-family:'Libre Baskerville',serif; }
+  .modal-info h2 { font-size:1.05rem; color:var(--gold-light); margin-bottom:.2rem; }
+  .modal-info .pali { font-size:.8rem; color:var(--gold-dim); font-style:italic; }
+  .modal-info .group { font-size:.7rem; color:var(--gold-dim); margin-top:.1rem; }
+  .modal-desc { font-size:.8rem; line-height:1.7; color:#d4c4a0; margin-top:.8rem; }
+  .modal-hr { border:none; border-top:1px solid rgba(201,146,42,.2); margin:.8rem 0; }
+  .modal-note { font-size:.72rem; color:var(--gold-dim); font-style:italic; }
+
+  /* hidden filter */
+  .card-wrap.hidden { display:none; }
+
+  .section-label {
+    grid-column: 1/-1;
+    text-align:center; font-size:.7rem;
+    color:var(--gold-dim); letter-spacing:.12em;
+    text-transform:uppercase;
+    padding:.3rem 0;
+    border-bottom:1px solid rgba(201,146,42,.15);
+    margin-bottom:.2rem;
+  }
+
+  .scroll-top {
+    position:fixed; bottom:1.5rem; right:1.2rem;
+    background:var(--gold); color:#1a0800;
+    border:none; border-radius:50%;
+    width:38px; height:38px;
+    font-size:1rem; cursor:pointer;
+    box-shadow:0 2px 12px rgba(201,146,42,.4);
+    display:flex;align-items:center;justify-content:center;
+    transition:opacity .3s;
+    opacity:.7;
+  }
+  .scroll-top:hover{opacity:1;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="ornament">❧</div>
+  <h1>เจตสิก ๕๒<br><span style="font-size:.6em;color:var(--gold-dim);">ไพ่จิตธรรม</span></h1>
+  <p>Cetasikā 52 · Mental Factors as Playing Cards</p>
+</div>
+
+<div class="filter-bar" id="filterBar">
+  <button class="filter-btn active" data-filter="all">ทั้งหมด ·  52</button>
+  <button class="filter-btn" data-filter="spade">♠ อัญญสมานา · 13</button>
+  <button class="filter-btn" data-filter="heart">♥ อกุศล · 13</button>
+  <button class="filter-btn" data-filter="diamond">♦ โสภณสาธารณะ · 13</button>
+  <button class="filter-btn" data-filter="club">♣ โสภณพิเศษ · 13</button>
+</div>
+
+<div class="deck-grid" id="deckGrid"></div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <button class="modal-close" id="modalClose">✕</button>
+    <div class="modal-card-preview">
+      <div class="modal-suit-badge" id="mBadge"></div>
+      <div class="modal-info">
+        <div class="modal-rank" id="mRank"></div>
+        <h2 id="mThai"></h2>
+        <div class="pali" id="mPali"></div>
+        <div class="group" id="mGroup"></div>
+      </div>
+    </div>
+    <hr class="modal-hr">
+    <div class="modal-desc" id="mDesc"></div>
+    <div class="modal-hr"></div>
+    <div class="modal-note" id="mNote"></div>
+  </div>
+</div>
+
+<button class="scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">▲</button>
+
+<script>
+const SUITS = {
+  spade:   { sym:'♠', color:'#2a4a6b', label:'อัญญสมานาเจตสิก' },
+  heart:   { sym:'♥', color:'#9a2020', label:'อกุศลเจตสิก' },
+  diamond: { sym:'♦', color:'#1a6030', label:'โสภณสาธารณเจตสิก' },
+  club:    { sym:'♣', color:'#5a2070', label:'โสภณพิเศษเจตสิก' },
+};
+const RANKS = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+
+const CARDS = [
+  /* ── ♠ SPADES: อัญญสมานาเจตสิก 13 ── */
+  { suit:'spade', rank:'A', thai:'ผัสสะ', pali:'Phassa', en:'Contact',
+    desc:'จุดกำเนิดของประสบการณ์ทั้งปวง — การกระทบระหว่างอารมณ์ อินทรีย์ และวิญญาณ เจตสิกนี้คือ Ace เพราะไม่มีผัสสะ ก็ไม่มีจิตเกิดขึ้นเลย',
+    note:'เกิดร่วมกับจิตทุกดวง • สัมปยุตกับวิถีจิตทุกประเภท' },
+  { suit:'spade', rank:'2', thai:'ชีวิตินทรีย์', pali:'Jīvitindriya', en:'Psychic Life',
+    desc:'อินทรีย์ที่รักษาความมีชีวิตของนามธรรม — เหมือนกระแสไฟที่หล่อเลี้ยงจิตและเจตสิกให้ดำรงอยู่ตราบที่ยังมีจิต',
+    note:'ไม่มีรูป ไม่มีสี ไม่มีรส — แต่ขาดไม่ได้' },
+  { suit:'spade', rank:'3', thai:'เวทนา', pali:'Vedanā', en:'Feeling',
+    desc:'ความรู้สึกที่แต่งรสประสบการณ์ — สุข ทุกข์ อุเบกขา เป็นหนึ่งในขันธ์ห้า และเป็นหัวใจของวิปัสสนากรรมฐาน',
+    note:'สุขเวทนา · ทุกขเวทนา · อุเบกขาเวทนา (โสมนัส โทมนัส อุเบกขา ในแบบ 5)' },
+  { suit:'spade', rank:'4', thai:'สัญญา', pali:'Saññā', en:'Perception',
+    desc:'การจำหมายอารมณ์ เหมือนตราประทับที่ฝังรอยไว้ในจิต — ทำให้รู้จักสิ่งที่เคยพบมาก่อน และสร้างโลกแห่งความหมาย',
+    note:'หนึ่งในขันธ์ห้า • ทำงานร่วมกับมนสิการอย่างใกล้ชิด' },
+  { suit:'spade', rank:'5', thai:'เอกัคคตา', pali:'Ekaggatā', en:'One-Pointedness',
+    desc:'สภาพที่จิตตั้งมั่นในอารมณ์หนึ่ง — รากของสมาธิ เมื่อเจริญเต็มที่คืออัปปนาสมาธิ เป็นองค์ฌานที่ 5',
+    note:'องค์ฌานข้อสุดท้าย • ทำงานในจิตทุกดวง แม้ระดับขณิกสมาธิ' },
+  { suit:'spade', rank:'6', thai:'มนสิการ', pali:'Manasikāra', en:'Attention',
+    desc:'การใส่ใจอารมณ์ — เป็นผู้พาจิตไปสู่อารมณ์นั้น ๆ โยนิโสมนสิการคือการใส่ใจโดยแยบคายที่นำสู่ปัญญา',
+    note:'ทำงานเป็น "บ่วงคล้อง" ดึงจิตและเจตสิกให้หันมาหาอารมณ์เดียวกัน' },
+  { suit:'spade', rank:'7', thai:'อธิโมกข์', pali:'Adhimokkha', en:'Decision/Resolution',
+    desc:'การตัดสินใจในอารมณ์อย่างไม่ลังเล — เหมือนผู้พิพากษาที่ชี้ขาด ทำให้จิตไม่โยกเยกในอารมณ์',
+    note:'ไม่มีในจิตที่มีวิจิกิจฉา เพราะความสงสัยคืออุปสรรคของการตัดสิน' },
+  { suit:'spade', rank:'8', thai:'วิตก', pali:'Vitakka', en:'Applied Thought',
+    desc:'การยกจิตขึ้นสู่อารมณ์ — องค์ฌานข้อแรก เปรียบเหมือนค้อนที่ตีจิตให้แนบแน่นในอารมณ์ เมื่อสงบลงจะละได้ในทุติยฌาน',
+    note:'วิตกในฌานเรียก "สัมมาสังกัปปะ" ในมรรคแปด' },
+  { suit:'spade', rank:'9', thai:'วิจาร', pali:'Vicāra', en:'Sustained Thought',
+    desc:'การประคับประคองจิตให้อยู่ในอารมณ์ — เหมือนมือที่ลูบไล้ระฆัง ต่อเนื่องจากวิตก เป็นองค์ฌานที่ 2',
+    note:'วิตก = ยกจิตขึ้น, วิจาร = รักษาจิตไว้ — ทำงานเป็นคู่' },
+  { suit:'spade', rank:'10', thai:'ฉันทะ', pali:'Chanda', en:'Desire-to-Act',
+    desc:'ความพอใจใคร่จะทำ — ไม่ใช่ตัณหา แต่เป็นแรงขับเชิงกุศลที่ผลักดันให้ลงมือปฏิบัติ เป็นหนึ่งในอิทธิบาท 4',
+    note:'ฉันทะ ≠ โลภะ • ฉันทะคือ "อยากทำดี" โลภะคือ "อยากได้"' },
+  { suit:'spade', rank:'J', thai:'วิริยะ', pali:'Viriya', en:'Energy/Effort',
+    desc:'ความเพียรพยายาม — แทรกซึมทั้งอกุศลและโสภณ เป็นองค์มรรคสัมมาวายามะ และหนึ่งในโพชฌงค์ 7',
+    note:'เกิดในจิตทั้งฝ่ายดีและฝ่ายชั่ว — วิริยะของโจรก็เป็นวิริยะ' },
+  { suit:'spade', rank:'Q', thai:'ปีติ', pali:'Pīti', en:'Rapture/Joy',
+    desc:'ความอิ่มเอิบปลาบปลื้ม — มี 5 ระดับจากขนลุกเล็กน้อยจนถึงปีติที่ทำให้ลอยได้ เป็นองค์ฌานที่ 3',
+    note:'ปีติต่างจากสุข — ปีติคือ "ตื่นเต้น" สุขคือ "สงบนิ่มนวล" ละได้ในตติยฌาน' },
+  { suit:'spade', rank:'K', thai:'เจตนา', pali:'Cetanā', en:'Volition/Intention',
+    desc:'King แห่งอัญญสมานา — เจตนาคือกรรม พระพุทธองค์ตรัสว่า "เจตนาหํ ภิกขเว กมฺมํ วทามิ" เจตนาปรุงแต่งสังสารวัฏ',
+    note:'เจตนาใน 3 ทวาร = กายกรรม วจีกรรม มโนกรรม • ทั้งกุศลและอกุศล' },
+
+  /* ── ♥ HEARTS: อกุศลเจตสิก 13 (ตัดวิจิกิจฉา ย้ายไป ♣) ── */
+  { suit:'heart', rank:'A', thai:'โมหะ', pali:'Moha', en:'Delusion',
+    desc:'Ace แห่งความมืด — รากเหง้าของอกุศลทั้งปวง ความไม่รู้ตามความเป็นจริง เป็นอวิชชาที่ปกคลุมสัตว์โลกในวัฏสงสาร',
+    note:'เกิดในอกุศลจิตทุก 12 ดวง • ไม่มีโมหะ ก็ไม่มีอกุศลอื่นเกิดได้' },
+  { suit:'heart', rank:'2', thai:'อหิริกะ', pali:'Ahirika', en:'Shamelessness',
+    desc:'ความไม่ละอายต่อบาป — เหมือนคนที่ทำสิ่งชั่วโดยไม่มีความอาย เป็นคู่ตรงข้ามของหิริ',
+    note:'เกิดในอกุศลจิตทุกดวงร่วมกับโมหะ อโนตตัปปะ อุทธัจจะ' },
+  { suit:'heart', rank:'3', thai:'อโนตตัปปะ', pali:'Anottappa', en:'Moral Recklessness',
+    desc:'ความไม่เกรงกลัวต่อบาป — ไม่เกรงกลัวต่อผลของกรรมชั่ว เป็นคู่ตรงข้ามของโอตตัปปะ',
+    note:'หิริ = ละอายเพราะเคารพตน | โอตตัปปะ = เกรงกลัวเพราะเคารพผู้อื่น' },
+  { suit:'heart', rank:'4', thai:'อุทธัจจะ', pali:'Uddhacca', en:'Restlessness',
+    desc:'ความฟุ้งซ่านของจิต — จิตไม่สงบ วิ่งพล่านหาอารมณ์ต่าง ๆ เป็นนิวรณ์ข้อ 4 และอกุศลเจตสิกที่เกิดกับจิตทุกฝ่ายอกุศล',
+    note:'เป็น 1 ใน 4 อกุศลสาธารณเจตสิก — เกิดกับอกุศลจิตทุก 12 ดวง' },
+  { suit:'heart', rank:'5', thai:'ถีนะ', pali:'Thīna', en:'Sloth',
+    desc:'ความหดหู่ท้อแท้ของจิต — จิตหมดแรง ไม่กระฉับกระเฉง เป็นคู่กับมิทธะ เกิดเฉพาะในจิตที่ไม่ถูกกระตุ้น',
+    note:'ถีนะ = ความซึมของจิต | มิทธะ = ความซึมของเจตสิก — เกิดคู่กันเสมอ' },
+  { suit:'heart', rank:'6', thai:'มิทธะ', pali:'Middha', en:'Torpor',
+    desc:'ความหดหู่ท้อแท้ของเจตสิก — เหมือนดอกไม้ที่หุบ เป็นคู่ถาวรกับถีนะ ทั้งคู่คืออุปสรรคของวิริยะ',
+    note:'ถีนมิทธะเป็นนิวรณ์ข้อ 3 — ตรงข้ามกับวิริยะและปีติ' },
+  { suit:'heart', rank:'7', thai:'กุกกุจจะ', pali:'Kukkucca', en:'Worry/Remorse',
+    desc:'ความเดือดร้อนใจ วิตกกังวลเกี่ยวกับสิ่งที่ทำหรือไม่ได้ทำ — เป็นนิวรณ์ข้อ 5 ร่วมกับอุทธัจจะ',
+    note:'กุกกุจจะ = เสียใจในอดีต, กังวลในอนาคต ≠ สำนึกผิด (ซึ่งเป็นกุศล)' },
+  { suit:'heart', rank:'8', thai:'อิสสา', pali:'Issā', en:'Envy',
+    desc:'ความริษยา ทนไม่ได้ที่ผู้อื่นได้ดี — เกิดพร้อมโทสะ เป็นตัวทำลายมิตรภาพและความสุขในใจ',
+    note:'อิสสา เกิดในโทสมูลจิต | มุทิตาคือยาแก้อิสสา' },
+  { suit:'heart', rank:'9', thai:'มัจฉริยะ', pali:'Macchariya', en:'Miserliness',
+    desc:'ความตระหนี่ หวงแหนสิ่งที่ตนมีจนทำให้ใจแคบ — มี 5 อย่าง ตั้งแต่หวงที่อยู่จนถึงหวงธรรมะ',
+    note:'มัจฉริยะ 5: อาวาส ตระกูล ลาภ วรรณะ ธรรม • เกิดในโทสมูลจิต' },
+  { suit:'heart', rank:'10', thai:'มานะ', pali:'Māna', en:'Conceit',
+    desc:'ความถือตัว เปรียบตนกับผู้อื่น — อาจสูงกว่า เท่ากัน หรือต่ำกว่า ก็ยังเป็นมานะทั้งนั้น เกิดในโลภมูลจิต',
+    note:'มานะ 9 ประการ • ละได้เด็ดขาดเมื่อถึงอรหัตมรรค' },
+  { suit:'heart', rank:'J', thai:'ทิฏฐิ', pali:'Diṭṭhi', en:'Wrong View',
+    desc:'ความเห็นผิด — หลงเชื่อในสิ่งที่ไม่จริง เช่น นิยตมิจฉาทิฏฐิ สัสสตทิฏฐิ อุจเฉทิฏฐิ เกิดในโลภมูลจิตที่มีทิฏฐิ',
+    note:'ละทิฏฐิได้เมื่อถึงโสดาบัน — สักกายทิฏฐิ วิจิกิจฉา สีลัพพตปรามาส' },
+  { suit:'heart', rank:'Q', thai:'โทสะ', pali:'Dosa', en:'Hatred/Aversion',
+    desc:'ความโกรธ ขุ่นเคืองใจ ผลักไสอารมณ์ — ตรงข้ามกับโลภะที่ดึงดูด มีอยู่ในโทสมูลจิต 2 ดวง',
+    note:'โทสะเผาตนเองก่อนเผาผู้อื่น — เมตตาคือยาแก้โทสะ' },
+  { suit:'heart', rank:'K', thai:'โลภะ', pali:'Lobha', en:'Greed/Attachment',
+    desc:'King แห่งกิเลส — ความอยากได้ อยากมี อยากเป็น เป็นสมุทัยในอริยสัจ ๔ มีอยู่ในโลภมูลจิต 8 ดวง',
+    note:'ตัณหา 3: กามตัณหา ภวตัณหา วิภวตัณหา — ดับที่มรรคจิต' },
+
+  /* ── ♦ DIAMONDS: โสภณสาธารณเจตสิก 13 ── */
+  { suit:'diamond', rank:'A', thai:'สัทธา', pali:'Saddhā', en:'Faith/Confidence',
+    desc:'Ace แห่งความงาม — ศรัทธาที่ตั้งมั่นในพระรัตนตรัย เป็นประตูสู่จิตอันงาม เหมือนมือที่ยื่นรับสิ่งดีงาม',
+    note:'สัทธาที่มีปัญญาค้ำจุน = อาการะสัทธา | ไม่ใช่ความเชื่อตาบอด' },
+  { suit:'diamond', rank:'2', thai:'กายปัสสัทธิ', pali:'Kāyapassaddhi', en:'Tranquility of Mental Body',
+    desc:'ความสงบของหมู่เจตสิก — เจตสิกทั้งหลายที่ประกอบอยู่ด้วยกันสงบเย็น ไม่ฟุ้ง ไม่เครียด',
+    note:'กาย ในที่นี้ = "นามกาย" หมายถึงหมู่เจตสิก ไม่ใช่ร่างกาย' },
+  { suit:'diamond', rank:'3', thai:'จิตตปัสสัทธิ', pali:'Cittapassaddhi', en:'Tranquility of Mind',
+    desc:'ความสงบของจิต — จิตเองสงบเย็น ไม่กระวนกระวาย เป็นคู่กับกายปัสสัทธิ เกิดร่วมกันเสมอ',
+    note:'ปัสสัทธิเป็นโพชฌงค์ข้อ 5 • ตรงข้ามกับถีนมิทธะและอุทธัจจะ' },
+  { suit:'diamond', rank:'4', thai:'กายลหุตา', pali:'Kāyalahutā', en:'Lightness of Mental Body',
+    desc:'ความเบาของหมู่เจตสิก — เจตสิกไม่หนักไม่ซึม เหมือนเมฆที่ลอยเบา พร้อมเคลื่อนที่ไปตามทิศทางกุศล',
+    note:'ตรงข้ามกับถีนมิทธะที่ทำให้จิตหนัก' },
+  { suit:'diamond', rank:'5', thai:'จิตตลหุตา', pali:'Cittalahutā', en:'Lightness of Mind',
+    desc:'ความเบาของจิต — จิตโปร่ง ไม่มีภาระ พร้อมรับอารมณ์อย่างกระฉับกระเฉง',
+    note:'กาย+จิตตลหุตา มักเกิดคู่กัน เหมือนผ้าเบาที่พัดง่าย' },
+  { suit:'diamond', rank:'6', thai:'กายมุทุตา', pali:'Kāyamudutā', en:'Malleability of Mental Body',
+    desc:'ความอ่อนนุ่มของหมู่เจตสิก — ดัดแปลงได้ง่าย ไม่แข็งกระด้าง พร้อมรับการปรับตัวตามกุศล',
+    note:'มุทุตา = ความนุ่ม | ตรงข้ามกับความแข็งกระด้างของจิตที่ยึดมั่นถือมั่น' },
+  { suit:'diamond', rank:'7', thai:'จิตตมุทุตา', pali:'Cittamudutā', en:'Malleability of Mind',
+    desc:'ความอ่อนนุ่มของจิต — จิตยืดหยุ่น รับปรัชญาใหม่ได้ ไม่ดื้อรั้น เป็นคุณสมบัติของผู้เรียนรู้อย่างแท้จริง',
+    note:'จิตที่มีมุทุตาเปรียบเหมือนทองคำที่ตีรูปได้ตามต้องการ' },
+  { suit:'diamond', rank:'8', thai:'ตัตรมัชฌัตตตา', pali:'Tatramajjhattatā', en:'Equanimity',
+    desc:'ความวางเฉยสมดุล — ไม่ตกไปข้างสุขหรือทุกข์ จิตตั้งอยู่ตรงกลาง เป็นหัวใจของอุเบกขาพรหมวิหาร',
+    note:'8♦ เพราะ 8 = สัมมาอัฏฐังคิกมัคค | ตัตร = ในที่นั้น มัชฌัตตตา = ความเป็นกลาง' },
+  { suit:'diamond', rank:'9', thai:'อโลภะ', pali:'Alobha', en:'Non-Greed/Generosity',
+    desc:'การไม่ติดในอารมณ์ — เป็นรากฐานของทาน การปล่อยวาง ตรงข้ามโลภะโดยตรง เป็นรากของกุศล',
+    note:'อโลภะ อโทสะ อโมหะ = กุศลมูล 3 รากเหง้าของกุศลกรรมทั้งปวง' },
+  { suit:'diamond', rank:'10', thai:'อโทสะ', pali:'Adosa', en:'Non-Hatred/Loving-Kindness',
+    desc:'ความไม่พยาบาท ความเมตตา — ตรงข้ามโทสะ เป็นรากของเมตตาพรหมวิหาร น้ำเย็นที่ดับไฟโทสะ',
+    note:'เมตตาในพรหมวิหาร = อโทสะที่เจริญเต็มที่ | รากของกุศลมูลข้อ 2' },
+  { suit:'diamond', rank:'J', thai:'หิริ', pali:'Hirī', en:'Moral Shame',
+    desc:'ความละอายต่อบาป — ความรู้สึกในใจที่ไม่ยอมทำสิ่งชั่ว เพราะเคารพตนเอง เป็น "โลกปาลธรรม" ข้อ 1',
+    note:'หิริ = ละอายเพราะเคารพตนเอง | โอตตัปปะ = กลัวเพราะเคารพสังคม' },
+  { suit:'diamond', rank:'Q', thai:'โอตตัปปะ', pali:'Ottappa', en:'Moral Dread',
+    desc:'ความเกรงกลัวต่อบาป — กลัวผลของกรรมชั่ว กลัวการตำหนิของผู้รู้ เป็นโลกปาลธรรมข้อ 2',
+    note:'หิริ+โอตตัปปะ = "เทวธรรม" ผู้ที่มีทั้งสองคุ้มครองโลกไว้ได้' },
+  { suit:'diamond', rank:'K', thai:'สติ', pali:'Sati', en:'Mindfulness',
+    desc:'King แห่งโสภณสาธารณะ — การระลึกรู้ ไม่ลืมอารมณ์กุศล เป็นหัวใจของวิปัสสนา เป็นโพชฌงค์ข้อ 1 มรรคข้อที่ 7',
+    note:'สตินทรีย์ สติพละ สติสัมโพชฌงค์ สัมมาสติ — สติปรากฏใน 4 ฐานะ' },
+
+  /* ── ♣ CLUBS: โสภณพิเศษ 12 + วิจิกิจฉา 1 = 13 ── */
+  { suit:'club', rank:'2', thai:'วิจิกิจฉา', pali:'Vicikicchā', en:'Doubt',
+    desc:'2♣ — จุดเริ่มต้นของเส้นทาง ความสงสัยลังเลในพระพุทธ พระธรรม พระสงฆ์ ในกรรม ในสัจธรรม เป็นนิวรณ์ข้อ 5',
+    note:'วิจิกิจฉาอยู่ที่นี่เพราะ: ผู้แสวงหาย่อมเริ่มจากข้อสงสัย → ละได้เมื่อถึงโสดาบัน' },
+  { suit:'club', rank:'3', thai:'กายกัมมัญญตา', pali:'Kāyakammaññatā', en:'Wieldiness of Mental Body',
+    desc:'ความควรแก่การงานของหมู่เจตสิก — พร้อมทำงานหนัก สามารถใช้ได้อย่างมีประสิทธิภาพ ไม่มีอุปสรรคภายใน',
+    note:'กัมมัญญตา = "ควรแก่การงาน" เหมือนดินเหนียวที่นวดจนนิ่มพอดี' },
+  { suit:'club', rank:'4', thai:'จิตตกัมมัญญตา', pali:'Cittakammaññatā', en:'Wieldiness of Mind',
+    desc:'ความควรแก่การงานของจิต — จิตพร้อมรับงาน ไม่ขัดขืน ไม่เหนื่อยหน่าย ใช้ได้ทั้งในสมาธิและวิปัสสนา',
+    note:'กาย+จิตตกัมมัญญตา เกิดพร้อมกันในโสภณจิต' },
+  { suit:'club', rank:'5', thai:'กายปาคุญญตา', pali:'Kāyapāguññatā', en:'Proficiency of Mental Body',
+    desc:'ความชำนาญคล่องแคล่วของหมู่เจตสิก — ไม่มีโรคภัย ทำงานได้อย่างสม่ำเสมอและมีประสิทธิภาพ',
+    note:'ปาคุญญตา = ความไม่มีโรค ความชำนาญ เหมือนนักดนตรีที่ฝึกจนคล่องมือ' },
+  { suit:'club', rank:'6', thai:'จิตตปาคุญญตา', pali:'Cittapāguññatā', en:'Proficiency of Mind',
+    desc:'ความชำนาญคล่องแคล่วของจิต — จิตทำงานได้อย่างราบรื่นไม่มีสะดุด เหมือนมือช่างที่ชำนาญแล้ว',
+    note:'6 ♣ ชุดนี้ทำงานร่วมกันเป็นกลุ่ม "คุณสมบัติฝ่ายกาย-จิต"' },
+  { suit:'club', rank:'7', thai:'กายุชุกตา', pali:'Kāyujukatā', en:'Rectitude of Mental Body',
+    desc:'ความซื่อตรงของหมู่เจตสิก — ไม่คดโกง ไม่อ้อมค้อม ตรงไปตรงมาในธรรม เหมือนต้นไม้ที่ขึ้นตรง',
+    note:'อุชุกตา = ความตรง | ตรงข้ามกับมายา สาเถยยะ ความคดโกง' },
+  { suit:'club', rank:'8', thai:'จิตตุชุกตา', pali:'Cittujukatā', en:'Rectitude of Mind',
+    desc:'ความซื่อตรงของจิต — จิตไม่คด ไม่หลอกลวง ตั้งอยู่ในความจริง เป็นรากฐานของการปฏิบัติธรรมแท้จริง',
+    note:'จิตที่มีอุชุกตาจะไม่แสร้งทำเป็นดี — ความจริงใจในการปฏิบัติ' },
+  { suit:'club', rank:'9', thai:'สัมมาวาจา', pali:'Sammāvācā', en:'Right Speech',
+    desc:'เว้นจากการพูดเท็จ ส่อเสียด หยาบคาย เพ้อเจ้อ — เป็นมรรคองค์ที่ 3 เกิดเฉพาะในกุศลจิตที่มีโอกาส',
+    note:'วิรตีเจตสิกไม่ได้เกิดทุกครั้งในโสภณจิต — เกิดเมื่อมีโอกาสละกรรม' },
+  { suit:'club', rank:'10', thai:'สัมมากัมมันตะ', pali:'Sammākammanta', en:'Right Action',
+    desc:'เว้นจากการฆ่า ลัก ประพฤติผิดในกาม — มรรคองค์ที่ 4 เป็นการงานทางกายที่ถูกต้องตามธรรม',
+    note:'วิรตีทั้ง 3 รวมกันเป็น "สีลขันธ์" หมวดศีลในมรรคมีองค์แปด' },
+  { suit:'club', rank:'J', thai:'สัมมาอาชีวะ', pali:'Sammāājīva', en:'Right Livelihood',
+    desc:'เลี้ยงชีพโดยสุจริต — มรรคองค์ที่ 5 ไม่ค้าขายสิ่งที่เบียดเบียน เป็นรากของความสะอาดในชีวิตประจำวัน',
+    note:'อาชีพต้องห้าม: ค้าอาวุธ สิ่งมีชีวิต เนื้อสัตว์ เครื่องดื่มมึนเมา ยาพิษ' },
+  { suit:'club', rank:'Q', thai:'กรุณา', pali:'Karuṇā', en:'Compassion',
+    desc:'ความสงสารอยากให้พ้นทุกข์ — พรหมวิหารข้อ 2 แผ่ไปไม่มีประมาณ เกิดเมื่อเห็นสัตว์กำลังทุกข์ทรมาน',
+    note:'มุทิตาคือยาแก้อิสสา | กรุณาคือยาแก้วิหิงสา (การเบียดเบียน)' },
+  { suit:'club', rank:'K', thai:'มุทิตา', pali:'Muditā', en:'Sympathetic Joy',
+    desc:'ความพลอยยินดีเมื่อผู้อื่นได้ดี — พรหมวิหารข้อ 3 ตรงข้ามอิสสา เป็นหัวใจของการเชียร์ผู้อื่นโดยไม่หวังอะไร',
+    note:'K♣ เพราะมุทิตาเป็น King of Joy — ปัญญาคือ Ace ที่สูงกว่า K' },
+  { suit:'club', rank:'A', thai:'ปัญญา', pali:'Paññā', en:'Wisdom',
+    desc:'Ace แห่งเส้นทาง — ปัญญาเห็นสิ่งทั้งปวงตามความเป็นจริง เป็นองค์ธรรมที่ประเสริฐที่สุด นำสู่วิมุตติ',
+    note:'ปัญญินทรีย์ · ปัญญาพละ · สัมมาทิฏฐิ · ธัมมวิจยสัมโพชฌงค์ — ปัญญาปรากฏใน 4 ฐานะ' },
+];
+
+const suitSymbol = { spade:'♠', heart:'♥', diamond:'♦', club:'♣' };
+const suitColor = { spade:'#2a4a6b', heart:'#9a2020', diamond:'#1a6030', club:'#5a2070' };
+const suitName = { spade:'อัญญสมานาเจตสิก', heart:'อกุศลเจตสิก', diamond:'โสภณสาธารณเจตสิก', club:'โสภณพิเศษเจตสิก' };
+
+function buildDeck() {
+  const grid = document.getElementById('deckGrid');
+  const sections = {spade:null, heart:null, diamond:null, club:null};
+  const labels = {
+    spade: '♠ อัญญสมานาเจตสิก — รากฐานแห่งจิต',
+    heart: '♥ อกุศลเจตสิก — ความมืดในใจ',
+    diamond: '♦ โสภณสาธารณเจตสิก — ความงามแห่งจิต',
+    club: '♣ โสภณพิเศษเจตสิก — เส้นทางแห่งการปฏิบัติ',
+  };
+
+  ['spade','heart','diamond','club'].forEach(suit => {
+    const lbl = document.createElement('div');
+    lbl.className = 'section-label';
+    lbl.textContent = labels[suit];
+    lbl.style.color = suitColor[suit];
+    lbl.setAttribute('data-suit-label', suit);
+    grid.appendChild(lbl);
+
+    const suitCards = CARDS.filter(c => c.suit === suit);
+    suitCards.forEach((card, i) => {
+      const wrap = document.createElement('div');
+      wrap.className = `card-wrap`;
+      wrap.setAttribute('data-suit', card.suit);
+      wrap.setAttribute('data-rank', card.rank);
+
+      const isFace = ['A','K','Q','J'].includes(card.rank);
+      const crown = isFace ? `<div class="crown">${card.rank==='A'?'✦':card.rank==='K'?'♔':card.rank==='Q'?'♕':'♖'}</div>` : '';
+
+      wrap.innerHTML = `
+        <div class="card-inner">
+          <div class="card-back">
+            <div class="card-back-pattern">🪷</div>
+          </div>
+          <div class="card-face ${card.suit}">
+            <div class="card-header">
+              <div>
+                <div class="card-rank">${card.rank}</div>
+                <div class="card-suit-small">${suitSymbol[card.suit]}</div>
+              </div>
+            </div>
+            <div class="card-center">
+              <div class="suit-large">${suitSymbol[card.suit]}</div>
+              ${crown}
+              <div class="pali-name">${card.pali}</div>
+              <div class="thai-name">${card.thai}</div>
+              <div class="meaning">${card.en}</div>
+            </div>
+            <div class="card-footer">
+              <div>
+                <div class="card-rank">${card.rank}</div>
+                <div class="card-suit-small">${suitSymbol[card.suit]}</div>
+              </div>
+            </div>
+          </div>
+        </div>`;
+
+      wrap.addEventListener('click', () => {
+        if (!wrap.classList.contains('flipped')) {
+          wrap.classList.add('flipped');
+          setTimeout(() => showModal(card), 260);
+        } else {
+          showModal(card);
+        }
+      });
+      grid.appendChild(wrap);
+    });
+  });
+}
+
+function showModal(card) {
+  const col = suitColor[card.suit];
+  document.getElementById('mBadge').innerHTML = `<span style="font-size:1.8rem;color:${col}">${suitSymbol[card.suit]}</span>`;
+  document.getElementById('mBadge').style.borderColor = col;
+  document.getElementById('mRank').textContent = card.rank;
+  document.getElementById('mRank').style.color = col;
+  document.getElementById('mThai').textContent = card.thai;
+  document.getElementById('mThai').style.color = '#e8b84b';
+  document.getElementById('mPali').textContent = card.pali + ' · ' + card.en;
+  document.getElementById('mGroup').textContent = suitName[card.suit];
+  document.getElementById('mDesc').textContent = card.desc;
+  document.getElementById('mNote').textContent = '📿 ' + card.note;
+  document.getElementById('modalOverlay').classList.add('show');
+}
+
+// Filter
+document.getElementById('filterBar').addEventListener('click', e => {
+  const btn = e.target.closest('.filter-btn');
+  if (!btn) return;
+  const filter = btn.dataset.filter;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  document.querySelectorAll('.card-wrap').forEach(c => {
+    c.classList.toggle('hidden', filter !== 'all' && c.dataset.suit !== filter);
+  });
+  document.querySelectorAll('[data-suit-label]').forEach(l => {
+    l.style.display = (filter === 'all' || l.dataset.suitLabel === filter) ? '' : 'none';
+  });
+});
+
+// Modal close
+document.getElementById('modalClose').addEventListener('click', () => {
+  document.getElementById('modalOverlay').classList.remove('show');
+});
+document.getElementById('modalOverlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('modalOverlay'))
+    document.getElementById('modalOverlay').classList.remove('show');
+});
+
+buildDeck();
+
+// Flip all after 800ms
+setTimeout(() => {
+  document.querySelectorAll('.card-wrap').forEach((c,i) => {
+    setTimeout(() => c.classList.add('flipped'), i * 20);
+  });
+}, 600);
+</script>
+</body>
+</html>
